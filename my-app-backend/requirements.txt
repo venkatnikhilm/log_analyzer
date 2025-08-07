@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+python-multipart
+pydantic
+google-generativeai
+python-dotenv
+greenlet
+PyJWT
+passlib[bcrypt]
