@@ -76,6 +76,25 @@ LogAnalyzer/
 - **Git**
 - **Google Gemini API Key** (for AI features)
 
+## 🤖 AI Integration & Usage
+
+### **Google Gemini AI Integration**
+LogAnalyzer leverages Google's Gemini AI to provide intelligent analysis of Nginx access logs, transforming raw log data into actionable security insights.
+
+### **AI Workflow Process**
+
+```mermaid
+graph TD
+    A[Upload Nginx Logs] --> B[Parse Log Entries]
+    B --> C[Extract Features]
+    C --> D[Send to Gemini AI]
+    D --> E[AI Analysis]
+    E --> F[Generate Insights]
+    F --> G[Store Results]
+    G --> H[Display in Dashboard]
+```
+
+
 ## 🚀 Quick Start
 
 ### **1. Clone the Repository**
@@ -326,32 +345,7 @@ docker-compose up --build frontend
 - **Backend Logs**: `docker-compose logs backend`
 - **Frontend Logs**: `docker-compose logs frontend`
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Google Gemini AI** for intelligent log analysis
-- **FastAPI** for the robust backend framework
-- **Next.js** for the modern frontend framework
-- **Tailwind CSS** for the beautiful UI components
-
-## 📞 Support
-
-For support and questions:
-- Create an issue in the GitHub repository
-- Check the troubleshooting section above
-- Review the API documentation at http://localhost:8000/docs
-
----
 
 **Happy Log Analysis! 🚀** 
