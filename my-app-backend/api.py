@@ -47,6 +47,19 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 app = FastAPI(title="Log Analyzer Backend")
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="Log Analyzer Backend")
+
+# Allow CORS for frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "*"],  # or "*" if you're just testing
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.on_event("startup")
 async def on_startup():
@@ -166,59 +179,6 @@ async def list_files(
 
 from fastapi import File as UploadParam, Form
 
-# @app.post("/upload", response_model=FileSchema, status_code=status.HTTP_201_CREATED)
-# async def upload(
-#     file: UploadFile = UploadParam(...),
-#     logs: str = Form(...),
-#     current_user: User = Depends(get_current_user),
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     # 1) Read the raw file & hash it
-#     content = await file.read()
-#     file_hash = hashlib.sha256(content).hexdigest()
-
-#     # 2) If already exists, return it
-#     existing = await db.get(File, file_hash)
-#     if existing:
-#         return existing
-
-#     # 3) Parse your `logs` JSON
-#     try:
-#         entries = json.loads(logs)
-#     except ValueError:
-#         raise HTTPException(400, "Invalid logs JSON")
-
-#     # 4) Create the File record
-#     record = File(
-#         file_hash=file_hash,
-#         user_id=current_user.id,
-#         file_name=file.filename,
-#         file_size=len(content),
-#         uploaded_at=datetime.utcnow(),
-#     )
-#     db.add(record)
-#     await db.flush()
-
-#     # 5) Bulk-insert LogEntry rows
-#     batch = []
-#     for obj in entries:
-#         batch.append(LogEntry(
-#             file_hash=file_hash,
-#             timestamp=datetime.fromisoformat(obj["timestamp"]),
-#             ip=obj.get("ip"),
-#             method=obj.get("method"),
-#             uri=obj.get("uri"),
-#             status=obj.get("status"),
-#             bytes=obj.get("bytes"),
-#             user_agent=obj.get("user_agent"),
-#             referer=obj.get("referer"),
-#         ))
-#     db.add_all(batch)
-
-#     # 6) Commit & return
-#     await db.commit()
-#     await db.refresh(record)
-#     return record
 
 LOG_PATTERN = re.compile(
     r'(?P<ip>\S+) \S+ \S+ \['
@@ -244,6 +204,9 @@ async def upload(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+
+    #TODO: Check Auth
+
     # 1) Read & hash the raw bytes
     content = await file.read()
     file_hash = hashlib.sha256(content).hexdigest()
@@ -259,7 +222,7 @@ async def upload(
     for line in text.splitlines():
         m = LOG_PATTERN.match(line)
         if not m:
-            continue
+            continue #TODO: Fix
         # parse into timezone-aware dt
         ts = datetime.strptime(m.group("timestamp"), "%d/%b/%Y:%H:%M:%S %z")
         # convert to UTC and drop tzinfo so it's a naive datetime
@@ -307,51 +270,6 @@ async def get_logs(
   result = await db.execute(select(LogEntry).filter_by(file_hash=body.file_hash))
   return result.scalars().all()
 
-# @app.post("/analyse", response_model=AIInsightResponse)
-# async def analyse(
-#     body: FileHashRequest,
-#     current_user: User = Depends(get_current_user),
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     # 1) see if we've already run AI on this file_hash
-#     q = await db.execute(select(AIInsight).filter_by(file_hash=body.file_hash))
-#     existing = q.scalars().first()
-#     if existing:
-#         return AIInsightResponse(insights=existing.insights)
-
-#     # 2) fetch the raw log entries
-#     q = await db.execute(select(LogEntry).filter_by(file_hash=body.file_hash))
-#     logs = q.scalars().all()
-#     payload = [
-#         {
-#             "id": e.id,
-#             "timestamp": e.timestamp.isoformat(),
-#             "ip": e.ip,
-#             "method": e.method,
-#             "uri": e.uri,
-#             "status": e.status,
-#             "bytes": e.bytes,
-#             "user_agent": e.user_agent,
-#             "referer": e.referer,
-#         }
-#         for e in logs
-#     ]
-
-#     # 3) call your AI routine
-#     insights = generate_insights(payload)
-#     if insights is None:
-#         raise HTTPException(status_code=500, detail="AI analysis failed")
-
-#     # 4) persist the new insights
-#     ai_rec = AIInsight(
-#         file_hash=body.file_hash,
-#         insights=insights,
-#         created_at=datetime.utcnow(),
-#     )
-#     db.add(ai_rec)
-#     await db.commit()
-
-#     return AIInsightResponse(insights=insights)
 from pydantic import BaseModel
 from models import AIInsight, AIInsightResponse  # make sure you have AIInsightResponse defined
 from ai import generate_insights    # for now, let that just return []
@@ -365,6 +283,8 @@ async def analyse(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+
+    # TODO: Check Auth.
     try:
         # 1) Already analysed?
         q = await db.execute(select(AIInsight).filter_by(file_hash=body.file_hash))
