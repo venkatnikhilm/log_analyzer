@@ -142,21 +142,52 @@ interface RawLogsTableProps {
 }
 
 export function RawLogsTable({ logs }: RawLogsTableProps) {
+  // const getRowColor = (status: number | null, uri: string | null) => {
+  //   if (!status || !uri) return ""
+  //   if (status === 403 && uri.includes("/admin"))
+  //     return "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+  //   if (status >= 500) return "bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800"
+  //   if (status === 404 && (uri.includes("wp-") || uri.includes("admin")))
+  //     return "bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800"
+  //   return ""
+  // }
+
+  // const getStatusBadge = (status: number | null) => {
+  //   if (!status) return <Badge variant="outline">-</Badge>
+  //   if (status >= 500) return <Badge variant="destructive">{status}</Badge>
+  //   if (status >= 400) return <Badge variant="secondary">{status}</Badge>
+  //   if (status >= 300) return <Badge variant="outline">{status}</Badge>
+  //   return (
+  //     <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+  //       {status}
+  //     </Badge>
+  //   )
+  // }
   const getRowColor = (status: number | null, uri: string | null) => {
     if (!status || !uri) return ""
-    if (status === 403 && uri.includes("/admin"))
+    
+    // Make 4xx and 5xx status codes red
+    if (status >= 400) {
+      if (status === 403 && uri.includes("/admin"))
+        return "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
       return "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
-    if (status >= 500) return "bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800"
+    }
+    
+    // Keep existing logic for other cases
     if (status === 404 && (uri.includes("wp-") || uri.includes("admin")))
       return "bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800"
+    
     return ""
   }
-
+  
   const getStatusBadge = (status: number | null) => {
     if (!status) return <Badge variant="outline">-</Badge>
-    if (status >= 500) return <Badge variant="destructive">{status}</Badge>
-    if (status >= 400) return <Badge variant="secondary">{status}</Badge>
+    
+    // Make 4xx and 5xx status codes red
+    if (status >= 400) return <Badge variant="destructive">{status}</Badge>
+    
     if (status >= 300) return <Badge variant="outline">{status}</Badge>
+    
     return (
       <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
         {status}
