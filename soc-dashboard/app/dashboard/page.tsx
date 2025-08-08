@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { MetricsCards } from "@/components/dashboard/metrics-cards"
 import { DashboardTabs } from "@/components/dashboard/dashboard-tabs"
-import { DashboardFilters } from "@/components/dashboard/dashboard-filters"
+// import { DashboardFilters } from "@/components/dashboard/dashboard-filters"
 import { AIInsightsPanel } from "@/components/dashboard/ai-insights-panel"
 import { UploadModal } from "@/components/uploads/upload-modal"
 import { Button } from "@/components/ui/button"
